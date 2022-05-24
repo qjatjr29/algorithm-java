@@ -1,4 +1,4 @@
-package baekJoon;
+package baekJoon.unionFind;
 
 import java.io.*;
 import java.util.*;
