@@ -1,4 +1,4 @@
-package baekJoon;
+package baekJoon.dijkstra;
 
 import java.io.*;
 import java.util.ArrayList;
