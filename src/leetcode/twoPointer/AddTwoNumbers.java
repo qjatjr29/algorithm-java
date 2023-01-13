@@ -1,4 +1,4 @@
-package leetcode;
+package leetcode.twoPointer;
 
 public class AddTwoNumbers {
 

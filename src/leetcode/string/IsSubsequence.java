@@ -1,9 +1,11 @@
-package leetcode;
+package leetcode.string;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+// https://leetcode.com/problems/is-subsequence/description/
 
 public class IsSubsequence {
 
