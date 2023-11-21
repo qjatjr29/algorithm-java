@@ -12,8 +12,6 @@ public class 게임닉네임 {
     private static final int ROOT = 1;
     private static final int MAX_SIZE = 100000 * 10 + 5;
     private static int[] nicknameCount;
-    private static boolean[] checked;
-    private static String[] alias;
     private static int[][] next;
     private static int nIndex;
 
@@ -24,7 +22,6 @@ public class 게임닉네임 {
 
         next = new int[MAX_SIZE][26];
         nicknameCount = new int[MAX_SIZE];
-        checked = new boolean[MAX_SIZE];
         nIndex = 2;
 
         int userCount = Integer.parseInt(input.nextToken());
