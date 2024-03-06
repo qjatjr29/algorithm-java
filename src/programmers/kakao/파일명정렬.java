@@ -1,82 +1,68 @@
 package programmers.kakao;
 
-import static java.util.Collections.sort;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class 파일명정렬 {
+    public String[] solution(String[] files) {
+        String[] answer = new String[files.length];
 
-  private static final String NUMBER_REGEX_EXPRESSION = "[0-9]+";
+        File[] fileList = new File[files.length];
 
-  public static String[] solution(String[] files) {
-    String[] answer = {};
+        for(int i = 0; i < files.length; i++) {
+            String filename = files[i];
+            fileList[i] =  new File(filename, i);
+        }
 
-    Pattern pattern = Pattern.compile(NUMBER_REGEX_EXPRESSION);
-
-    List<File> answerList = new ArrayList<>();
-    for(int i = 0; i < files.length; i++) {
-      String currentFile = files[i];
-      Matcher matcher = pattern.matcher(currentFile);
-
-      matcher.find();
-      String numberStr = matcher.group();
-      Long number = Long.parseLong(numberStr);
-      int index = matcher.start();
-
-      String head = currentFile.substring(0, index).toLowerCase();
-      String tail = currentFile.substring(index, currentFile.length());
-      answerList.add(new File(head, number, tail, currentFile));
+        Arrays.sort(fileList);
+        for(int i = 0; i < fileList.length; i++) {
+            answer[i] = fileList[i].filename;
+        }
+        return answer;
     }
-    sort(answerList);
-    answer = new String[answerList.size()];
+    private class File implements Comparable<File> {
 
-    for(int i = 0; i < answerList.size(); i++) {
-      answer[i] = answerList.get(i).file;
+        String filename;
+        String header;
+        String number;
+        String tail;
+
+        int order;
+
+        public File(String filename, int order) {
+            this.filename = filename;
+            this.order = order;
+            parseFilename();
+        }
+
+        private void parseFilename() {
+            Pattern pattern = Pattern.compile("^(\\D+)(\\d{1,5})(.*)");
+            Matcher matcher = pattern.matcher(this.filename);
+
+            if (matcher.find()) {
+                header = matcher.group(1);
+                number = matcher.group(2);
+                tail = matcher.group(3);
+            } else {
+                throw new IllegalArgumentException("Invalid filename format");
+            }
+        }
+
+        @Override
+        public int compareTo(File o) {
+
+            if(this.header.compareToIgnoreCase(o.header) == 0) {
+                int cNumber = Integer.parseInt(this.number);
+                int oNumber = Integer.parseInt(o.number);
+
+                if(cNumber == oNumber) {
+                    return this.order - o.order;
+                }
+                return cNumber - oNumber;
+           }
+
+            return this.header.compareToIgnoreCase(o.header);
+        }
     }
-
-    return answer;
-  }
-
-  private static class File implements Comparable<File> {
-    String head;
-    Long number;
-    String tail;
-    String file;
-
-    public File(String head, Long number, String tail, String file) {
-      this.head = head;
-      this.number = number;
-      this.tail = tail;
-      this.file = file;
-    }
-
-    @Override
-    public int compareTo(File o) {
-      // 현재 head 값이 더 큰 경우
-      if(this.head.compareTo(o.head) > 0) {
-        return 1;
-      }
-      else if(this.head.compareTo(o.head) == 0) {
-        if(this.number > o.number) return 1;
-        else if(this.number.equals(o.number)) return 0;
-        return -1;
-      }
-      else return -1;
-    }
-  }
-  
-  public static void main(String[] args) {
-
-    String[] files = {"img12.png", "img10.png", "img02.png", "img1.png", "IMG01.GIF", "img2.JPG" };
-//    String[] files = {"img12.pn3g", "img10" };
-
-    String[] solution = solution(files);
-
-    for (String s : solution) {
-      System.out.println(s);
-    }
-  }
 }
