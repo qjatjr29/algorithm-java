@@ -14,60 +14,45 @@ import java.util.StringTokenizer;
 
 public class 팰린드롬만들기 {
 
-    private static final String IMPOSSIBLE = "I'm Sorry Hansoo";
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringTokenizer input = new StringTokenizer(br.readLine());
 
-        String originalName = input.nextToken();
+        String str = input.nextToken();
+        int answer = str.length();
 
-        Map<Character, Integer> alphaMap = new HashMap<>();
-
-        for(int i = 0; i < originalName.length(); i++) {
-            Character alpha = originalName.charAt(i);
-            alphaMap.put(alpha, alphaMap.getOrDefault(alpha, 0) + 1);
-        }
-
-        List<Character> keyList = new ArrayList<>(alphaMap.keySet());
-        Collections.sort(keyList);
-
-        StringBuilder stringBuilder = new StringBuilder();
-        String answer = "";
-        Character middleCharacter = null;
-
-        for(Character key : keyList) {
-            int count = alphaMap.get(key);
-            if(count % 2 != 0 && originalName.length() % 2 == 0) {
-                answer = IMPOSSIBLE;
+        // 가장 긴 팰린드롬 길이를 구한다.
+        int lp = 0;
+        while(true) {
+            if(isPalindorm(lp, str)) {
                 break;
             }
-            else if(count % 2 != 0 && middleCharacter != null) {
-                answer = IMPOSSIBLE;
-                break;
-            }
-            else if(count % 2 != 0) {
-                middleCharacter = key;
-            }
-            for(int i = 0; i < count / 2; i++) stringBuilder.append(key);
+            lp++;
         }
 
-        if(!answer.equals(IMPOSSIBLE)) {
-            int size = stringBuilder.length();
-            if(middleCharacter != null) {
-                stringBuilder.append(middleCharacter);
-            }
-            for(int i = size - 1; i >= 0; i--) {
-                stringBuilder.append(stringBuilder.charAt(i));
-            }
-            answer = stringBuilder.toString();
-        }
-        bw.write(answer);
+        answer += lp;
+
+        bw.write(String.valueOf(answer));
         bw.newLine();
         bw.flush();
         bw.close();
         br.close();
+    }
+
+    private static boolean isPalindorm(int lp, String target) {
+        int rp = target.length() - 1;
+        while(lp < rp) {
+            char left = target.charAt(lp);
+            char right = target.charAt(rp);
+            if(left != right) {
+                return false;
+            }
+            lp++;
+            rp--;
+        }
+
+        return true;
     }
 
 }
