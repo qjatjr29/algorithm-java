@@ -3,6 +3,9 @@
 
 # Kotlin으로 알고리즘 문제 풀기
 
+### 브루트포스
+-[x] [마인크래프트](https://www.acmicpc.net/problem/18111)
+
 ### BFS
 -[x] [불](https://www.acmicpc.net/problem/5427) 
 
