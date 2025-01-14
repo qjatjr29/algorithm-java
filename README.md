@@ -9,6 +9,9 @@
 ### BFS
 -[x] [불](https://www.acmicpc.net/problem/5427) 
 
+### DP
+-[x] [RGB거리2](https://www.acmicpc.net/problem/17404)
+
 ### 투 포인터
 -[x] [수고르기](https://www.acmicpc.net/problem/2230)
 
