@@ -6,6 +6,9 @@
 ### 브루트포스
 -[x] [마인크래프트](https://www.acmicpc.net/problem/18111)
 
+### 시뮬레이션
+-[x] [로봇청소기](https://www.acmicpc.net/problem/14503)
+
 ### BFS
 -[x] [불](https://www.acmicpc.net/problem/5427) 
 
