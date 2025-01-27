@@ -24,3 +24,6 @@
 
 ### 최단 경로 알고리즘
 -[x] 플로이드와샬: [운동](https://www.acmicpc.net/problem/1956)
+
+### 그리디
+-[x] 물병(https://www.acmicpc.net/problem/19941)
