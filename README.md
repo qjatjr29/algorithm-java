@@ -27,4 +27,5 @@
 -[x] 플로이드와샬: [운동](https://www.acmicpc.net/problem/1956)
 
 ### 그리디
--[x] 물병(https://www.acmicpc.net/problem/19941)
+-[x] [물병](https://www.acmicpc.net/problem/19941)
+-[x] [전구와스위치](https://www.acmicpc.net/problem/2138)
