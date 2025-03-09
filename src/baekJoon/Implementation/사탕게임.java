@@ -1,105 +1,98 @@
 package baekJoon.Implementation;
 
-import static java.lang.Math.max;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.StringTokenizer;
 
 public class 사탕게임 {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer input = new StringTokenizer(br.readLine());
 
-  private static int[][] board;
-  private static int answer;
+        int n = Integer.parseInt(input.nextToken());
 
-  public static void main(String[] args) throws IOException {
+        char[][] candies = new char[n][n];
+        List<int[]> checkList = new ArrayList<>();
+        int answer = 0;
 
-    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        for (int i = 0; i < n; i++) {
+            String candy = new StringTokenizer(br.readLine()).nextToken();
+            for (int j = 0; j < candy.length(); j++) {
+                candies[i][j] = candy.charAt(j);
 
-    StringTokenizer st = new StringTokenizer(br.readLine());
+                // 행 - 인접한 사탕의 색이 다른지 확인
+                if (i > 0 && candies[i - 1][j] != candies[i][j]) {
+                    checkList.add(new int[]{i - 1, j, i, j});
+                }
 
-    int N = Integer.parseInt(st.nextToken());
-
-    board = new int[N][N];
-
-    for(int i = 0; i < N; i++) {
-      st = new StringTokenizer(br.readLine());
-      String row = st.nextToken();
-
-      for(int j = 0; j < N; j++) {
-        char color = row.charAt(j);
-        board[i][j] = color;
-      }
-      checkMaxRow(i);
-    }
-
-    for(int i = 0; i < N; i++) checkMaxCol(i);
-
-    for(int i = 0; i < N; i++) {
-      for(int j = 0; j < N; j++) {
-        if(j + 1 < N) {
-          swap(i, j, i , j + 1);
-          checkMaxRow(i);
-          checkMaxCol(j);
-          checkMaxCol(j + 1);
-          swap(i, j, i, j + 1);
+                // 열 - 인접한 사탕의 색이 다른지 확인
+                if (j > 0 && candies[i][j - 1] != candies[i][j]) {
+                    checkList.add(new int[]{i, j - 1, i, j});
+                }
+            }
         }
-        if(i + 1 < N) {
-          swap(i, j, i + 1 , j);
-          checkMaxRow(i);
-          checkMaxCol(j);
-          checkMaxRow(i + 1);
-          swap(i, j, i + 1, j);
+
+
+        for (int[] check : checkList) {
+            int cx1 = check[0];
+            int cy1 = check[1];
+            int cx2 = check[2];
+            int cy2 = check[3];
+            swap(candies, cx1, cy1, cx2, cy2);
+            int result = eat(candies);
+            answer = Math.max(answer, result);
+            swap(candies, cx1, cy1, cx2, cy2);
         }
-      }
+
+        bw.write(String.valueOf(answer));
+        bw.newLine();
+        bw.flush();
+        bw.close();
     }
-    bw.write(String.valueOf(answer));
-    bw.newLine();
-    bw.flush();
-    bw.close();
-    br.close();
-  }
 
-  private static void swap (int x1, int y1, int x2, int y2) {
-    int temp = board[x1][y1];
-    board[x1][y1] = board[x2][y2];
-    board[x2][y2] = temp;
-  }
-
-  private static void checkMaxRow(int row) {
-    int count = 1;
-    int maxCount = 1;
-    int curValue = board[row][0];
-    for(int i = 1; i < board.length; i++) {
-      if(curValue == board[row][i]) count++;
-      else {
-        maxCount = max(maxCount, count);
-        count = 1;
-        curValue = board[row][i];
-      }
+    private static void swap(char[][] candies, int cx1, int cy1, int cx2, int cy2) {
+        char temp = candies[cx1][cy1];
+        candies[cx1][cy1] = candies[cx2][cy2];
+        candies[cx2][cy2] = temp;
     }
-    maxCount = max(maxCount, count);
-    answer = max(maxCount, answer);
-  }
 
-  private static void checkMaxCol(int col) {
-    int count = 1;
-    int maxCount = 1;
-    int curValue = board[0][col];
-    for(int i = 1; i < board.length; i++) {
-      if(curValue == board[i][col]) count++;
-      else {
-        maxCount = max(maxCount, count);
-        count = 1;
-        curValue = board[i][col];
-      }
+    private static int eat(char[][] candies) {
+
+        int count = 0;
+
+        for (char[] chars : candies) {
+            int c = 1;
+            char candy = chars[0];
+            for (int j = 1; j < chars.length; j++) {
+                if (candy == chars[j]) {
+                    c++;
+                } else {
+                    candy = chars[j];
+                    count = Math.max(count, c);
+                    c = 1;
+                }
+            }
+            count = Math.max(count, c);
+        }
+
+        for (int i = 0; i < candies[0].length; i++) {
+            int c = 1;
+            char candy = candies[0][i];
+            for (int j = 1; j < candies.length; j++) {
+                if (candy == candies[j][i]) {
+                    c++;
+                }
+                else {
+                    candy = candies[j][i];
+                    count = Math.max(count, c);
+                    c = 1;
+                }
+            }
+            count = Math.max(count, c);
+        }
+
+        return count;
     }
-    maxCount = max(maxCount, count);
-    answer = max(maxCount, answer);
-  }
-
-
 }
