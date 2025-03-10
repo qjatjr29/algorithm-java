@@ -1,132 +1,88 @@
 package baekJoon.dijkstra;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.Queue;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class 면접보는승범이네 {
-
-    private static final long INF = 10000000001L;
-    private static List<Route>[] routes;
-    private static long[] resultDistances;
-    private static Queue<Integer> meetingCityQueue;
-
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         StringTokenizer input = new StringTokenizer(br.readLine());
 
-        int N = Integer.parseInt(input.nextToken());
-        int M = Integer.parseInt(input.nextToken());
-        int K = Integer.parseInt(input.nextToken());
+        int n = Integer.parseInt(input.nextToken()); // 도시 수
+        int m = Integer.parseInt(input.nextToken()); // 도로 수
+        int k = Integer.parseInt(input.nextToken()); // 면접장 수
 
-        routes = new ArrayList[N + 1];
-        resultDistances = new long[N + 1];
-        meetingCityQueue = new LinkedList<>();
-
-        for(int i = 0; i <= N; i++) {
-            routes[i] = new ArrayList<>();
-            resultDistances[i] = INF;
+        // 단방향
+        List<Node>[] adj = new List[n + 1];
+        for (int i = 0; i < n + 1; i++) {
+            adj[i] = new ArrayList<>();
         }
 
-        for(int i = 0; i < M; i++) {
+        for (int i = 0; i < m; i++) {
             input = new StringTokenizer(br.readLine());
-            int sCity = Integer.parseInt(input.nextToken());
-            int eCity = Integer.parseInt(input.nextToken());
-            int cost = Integer.parseInt(input.nextToken());
-
-            routes[eCity].add(new Route(sCity, cost));
+            int u = Integer.parseInt(input.nextToken());
+            int v = Integer.parseInt(input.nextToken());
+            int c = Integer.parseInt(input.nextToken());
+            adj[v].add(new Node(u, c));
         }
+
+        long[] dist = new long[n + 1];
+        Arrays.fill(dist, Long.MAX_VALUE);
 
         input = new StringTokenizer(br.readLine());
-        for(int i = 0; i < K; i++) {
-            int meetingCity = Integer.parseInt(input.nextToken());
-            meetingCityQueue.add(meetingCity);
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        boolean[] visited = new boolean[n + 1];
+
+        for (int i = 0; i < k; i++) {
+            int interview = Integer.parseInt(input.nextToken());
+            pq.add(new Node(interview, 0));
         }
 
-        findMinDistanceForMeeting();
+        while (!pq.isEmpty()) {
+            Node node = pq.poll();
 
-        int answerCity = 0;
-        long maxDistance = 0L;
+            int idx = node.idx;
+            if (visited[idx]) continue;
+            visited[idx] = true;
+            dist[idx] = Math.min(dist[idx], node.distance);
 
-        for(int i = 1; i <= N; i++) {
-            if(maxDistance < resultDistances[i]) {
-                maxDistance = resultDistances[i];
-                answerCity = i;
+            for (Node next : adj[idx]) {
+                int nIdx = next.idx;
+                if (visited[nIdx]) continue;
+                pq.add(new Node(nIdx, node.distance + next.distance));
             }
         }
 
-        bw.write(String.valueOf(answerCity));
+        long distance = 0;
+        int city = 0;
+        for (int i = 1; i <= n; i++) {
+            if (dist[i] == Long.MAX_VALUE) continue;
+            if (distance < dist[i]) {
+                distance = dist[i];
+                city = i;
+            }
+        }
+        bw.write(String.valueOf(city));
         bw.newLine();
-        bw.write(String.valueOf(maxDistance));
+        bw.write(String.valueOf(distance));
         bw.newLine();
         bw.flush();
         bw.close();
         br.close();
-
     }
 
-    private static void findMinDistanceForMeeting() {
-
-        Long[] distances = new Long[routes.length];
-        PriorityQueue<Route> pq = new PriorityQueue<>();
-
-        Arrays.fill(distances, -1L);
-
-        for(int meetingCity : meetingCityQueue) {
-            pq.add(new Route(meetingCity, 0L));
-            distances[meetingCity] = 0L;
-        }
-
-        while(!pq.isEmpty()) {
-
-            Route cRoute = pq.poll();
-
-            int cCity = cRoute.city;
-            long cDistance = cRoute.distance;
-
-            // 이미 더 작은 경우
-            if(distances[cCity] == -1 || distances[cCity] < cDistance) continue;
-
-            for(Route nRoute : routes[cCity]) {
-                int nCity = nRoute.city;
-                long nDistance = cDistance+ nRoute.distance;
-
-                if(distances[nCity] == -1 || distances[nCity] > nDistance) {
-                    distances[nCity] = nDistance;
-                    pq.add(new Route(nCity, nDistance));
-                }
-            }
-        }
-
-        for(int i = 1; i < resultDistances.length; i++) {
-            resultDistances[i] = Math.min(resultDistances[i], distances[i]);
-        }
-
-    }
-
-    private static class Route implements Comparable<Route> {
-        int city;
+    private static class Node implements Comparable<Node> {
+        int idx;
         long distance;
-
-        public Route(int city, long distance) {
-            this.city = city;
+        public Node(int idx, long distance) {
+            this.idx = idx;
             this.distance = distance;
         }
 
         @Override
-        public int compareTo(Route o) {
-            return Long.compare(this.distance, o.distance);
+        public int compareTo(Node o) {
+            return (int) (this.distance - o.distance);
         }
     }
-
 }
