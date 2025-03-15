@@ -1,77 +1,92 @@
 package baekJoon.greedy;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.Arrays;
 import java.util.PriorityQueue;
 import java.util.StringTokenizer;
 
-// https://www.acmicpc.net/problem/11000
 public class 강의실배정 {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer input = new StringTokenizer(br.readLine());
 
-  public static void main(String[] args) throws IOException {
+        int n = Integer.parseInt(input.nextToken());
+        int answer = 0;
 
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    StringTokenizer st = new StringTokenizer(br.readLine());
+        Class[] classes = new Class[n];
 
-    int answer = 0;
-    int N = Integer.parseInt(st.nextToken());
+        for (int i = 0; i < n; i++) {
+            input = new StringTokenizer(br.readLine());
+            int s = Integer.parseInt(input.nextToken());
+            int e = Integer.parseInt(input.nextToken());
 
-    Course[] courses = new Course[N];
-    for(int i = 0; i < N; i++) {
-      st = new StringTokenizer(br.readLine());
-      int start = Integer.parseInt(st.nextToken());
-      int end = Integer.parseInt(st.nextToken());
-      courses[i] = new Course(start, end);
+            classes[i] = new Class(s, e);
+        }
+
+        // 강의가 끝난 후 시간
+        Arrays.sort(classes);
+        int time = classes[0].end;
+
+        // 강의실
+        PriorityQueue<ClassRoom> pq = new PriorityQueue<>();
+        pq.add(new ClassRoom(time));
+
+        // 다음 강의가 강의실이 필요한지 확인
+        for (int i = 1; i < n; i++) {
+            int start = classes[i].start;
+
+            while (!pq.isEmpty()) {
+
+                ClassRoom prev = pq.peek();
+
+                // 강의실이 필요없는 경우
+                if (prev.time <= start) {
+                    pq.poll(); // 현재 강의가 끝난 시간으로 다시 강의실을 업데이트
+                    continue;
+                }
+                // 강의실이 필요한 경우
+                break;
+            }
+            pq.add(new ClassRoom(classes[i].end));
+            answer = Math.max(answer, pq.size());
+        }
+
+        bw.write(String.valueOf(answer));
+        bw.newLine();
+        bw.flush();
+        bw.close();
+        br.close();
+
     }
 
-    Arrays.sort(courses);
+    private static class Class implements Comparable<Class>{
 
-    PriorityQueue<Integer> pq = new PriorityQueue<>();
+        int start;
+        int end;
+        public Class (int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
 
-    pq.add(courses[0].endTime);
+        @Override
+        public int compareTo(Class o) {
+            if (this.start == o.start) return this.end - o.end;
+            return this.start - o.start;
+        }
 
-    for(int i = 1; i < N; i++) {
-
-      int start = courses[i].startTime;
-
-      while(!pq.isEmpty()) {
-
-        int preEndTime = pq.peek();
-
-        // 강의실 따로 필요 없음.
-        if(start >= preEndTime) pq.poll();
-        // 강의실 필요
-        else break;
-      }
-      pq.add(courses[i].endTime);
-      answer = Math.max(answer, pq.size());
     }
 
-    bw.write(String.valueOf(answer));
-    bw.newLine();
-    bw.flush();
-    bw.close();
-    br.close();
-  }
+    private static class ClassRoom implements Comparable<ClassRoom>{
+        int time;
 
-  private static class Course implements Comparable<Course> {
-    int startTime;
-    int endTime;
+        public ClassRoom(int time) {
+            this.time = time;
+        }
 
-    public Course(int startTime, int endTime) {
-      this.startTime = startTime;
-      this.endTime = endTime;
+        @Override
+        public int compareTo(ClassRoom o) {
+            return this.time - o.time;
+        }
     }
-
-    @Override
-    public int compareTo(Course o) {
-      return this.startTime - o.startTime;
-    }
-  }
-
 }
