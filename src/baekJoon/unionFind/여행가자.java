@@ -5,83 +5,66 @@ import java.util.StringTokenizer;
 
 public class 여행가자 {
 
-    static int N, M;
-    private static BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    private static BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    static int[] root;
-    static int[] rank;
-    static int[] cities;
-
-    public static void setUnionFind() {
-        root = new int[N + 1];
-        rank = new int[N+1];
-        for (int i = 1; i <= N; i++) {
-            root[i] = i;
-            rank[i] = 0;
-        }
-    }
-
-    public static int Find(int x) {
-        if (root[x] == x) return x;
-        else return root[x] = Find(root[x]);
-    }
-
-    public static void Union(int x, int y) {
-        int rtnX = Find(x);
-        int rtnY = Find(y);
-
-        if(rtnX == rtnY) return;
-
-        // 트리의 높이 비교
-        if (rank[rtnX] < rank[rtnY]) root[x] = y;
-        else {
-            root[y] = x;
-            if (rank[rtnX] == rank[rtnY]) rank[rtnX]++;
-        }
-    }
+    private static int[] connection;
 
     public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer input = new StringTokenizer(br.readLine());
 
-        StringTokenizer st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
-        st = new StringTokenizer(br.readLine());
-        M = Integer.parseInt(st.nextToken());
-        cities = new int[M];
-        setUnionFind();
+        int n = Integer.parseInt(input.nextToken());
 
-        int connection;
-        for (int i = 1; i <= N; i++) {
-            st = new StringTokenizer(br.readLine());
-            for (int j = 1; j <= N; j++) {
-                connection = Integer.parseInt(st.nextToken());
-                if (connection == 1) {
-                    Union(i, j);
+        input = new StringTokenizer(br.readLine());
+        int m = Integer.parseInt(input.nextToken());
+
+        connection = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            connection[i] = i;
+        }
+
+        for (int i = 1; i <= n; i++) {
+            input = new StringTokenizer(br.readLine());
+            for (int j = 1; j <= n; j++) {
+                int conn = Integer.parseInt(input.nextToken());
+                if (conn == 1) {
+                    union(i, j);
                 }
             }
         }
 
-        st = new StringTokenizer(br.readLine());
-        boolean chk = true;
-        for (int i = 0; i < M; i++) {
-            cities[i] = Integer.parseInt(st.nextToken());
-        }
-        int unionNumber = Find(cities[0]);
+        input = new StringTokenizer(br.readLine());
+        boolean check = true;
+        int root = -1;
+        for (int i = 0; i < m; i++) {
+            int city = Integer.parseInt(input.nextToken());
 
-        for (int i = 1; i < M; i++) {
-            if (unionNumber != Find(cities[i])) {
-                chk = false;
+            if (root == -1) {
+                root = find(city);
+                continue;
+            }
+            if (root != find(city)) {
+                check = false;
                 break;
             }
         }
 
-        if (chk == true)
-            bw.write("YES");
+        if (check) bw.write("YES");
         else bw.write("NO");
-
         bw.newLine();
         bw.flush();
         bw.close();
+        br.close();
+    }
 
+    private static int find(int x) {
+        if (x == connection[x]) return x;
+        return connection[x] = find(connection[x]);
+    }
 
+    private static void union(int x, int y) {
+        x = find(x);
+        y = find(y);
+
+        if (x != y) connection[y] = x;
     }
 }
