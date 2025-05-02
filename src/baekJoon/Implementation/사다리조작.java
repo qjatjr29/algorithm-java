@@ -1,103 +1,101 @@
 package baekJoon.Implementation;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
+import java.io.*;
 import java.util.StringTokenizer;
 
 public class 사다리조작 {
 
-    private static final int CONNECT = 1;
-    private static final int LIMIT = 3;
+    private static int n;
+    private static int h;
     private static int answer;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-
         StringTokenizer input = new StringTokenizer(br.readLine());
 
-        int N = Integer.parseInt(input.nextToken());
-        int M = Integer.parseInt(input.nextToken());
-        int H = Integer.parseInt(input.nextToken());
-        answer = -1;
+        n = Integer.parseInt(input.nextToken());
+        int m = Integer.parseInt(input.nextToken());
+        h = Integer.parseInt(input.nextToken());
 
-        int[][] connect = new int[N + 1][H + 1];
+        int[][] ladder = new int[h + 1][n + 1];
 
-        // i번째 세로선이 h 점선 위치에서 어느 세로선에 있는지에 대한 정보
-        int[][] position = new int[N + 1][H + 1];
-
-        for(int i = 0; i < M; i++) {
+        for (int i = 0; i < m; i++) {
             input = new StringTokenizer(br.readLine());
-            int height = Integer.parseInt(input.nextToken());
-            int line = Integer.parseInt(input.nextToken());
-
-            connect[line][height] = CONNECT;
+            int a = Integer.parseInt(input.nextToken());
+            int b = Integer.parseInt(input.nextToken());
+            ladder[a][b] = 1;
         }
 
-        for(int i = 0; i <= LIMIT; i++) {
-            if(answer != -1) {
-                break;
-            }
-            modify(0, i, connect, 1);
+        // 추가할 수 있는 가로 선의 개수는 0 ~ 3
+        answer = 4;
+        for (int i = 0; i <= 3; i++) {
+            if (answer < 4) break;
+            dfs(ladder, 1, 0, i);
         }
-
+        if (answer == 4) {
+            answer = -1;
+        }
         bw.write(String.valueOf(answer));
         bw.newLine();
         bw.flush();
         bw.close();
         br.close();
     }
+    private static void dfs(int[][] ladder, int row, int count, int maxLine) {
 
-    private static void modify(int count, int max, int[][] connect, int height) {
-
-        if(count == max) {
-            if(isCorrectPath(connect)) {
-                answer = max;
+        if (count == maxLine) {
+            // i번 세로선의 결과가 i번이 나오는 사다리인지 확인
+            if (checkLadder(ladder)) {
+                // 원하는 사다리 형태인 경우
+                answer = Math.min(answer, maxLine);
             }
             return;
         }
 
-        // 현재 높이에서 만들 수 있는 가로선을 만들어 재귀적으로 확인
-        for(int h = height; h < connect[0].length; h++) {
-            for(int line = 1; line < connect.length - 1; line++) {
-                if(connect[line][h] == CONNECT || connect[line - 1][h] == CONNECT || connect[line + 1][h] == CONNECT) {
+        for (int nextRow = row; nextRow <= h; nextRow++) {
+            for (int col = 1; col < n; col++) {
+                // 이미 사다리가 있는 경우
+                if (ladder[nextRow][col] == 1) {
                     continue;
                 }
 
-                connect[line][h] = CONNECT;
-                modify(count + 1, max, connect, h);
-                connect[line][h] = 0;
+                // 왼쪽 오른쪽 사다리가 연결되어 있으면 안됌.
+                if (ladder[nextRow][col - 1] == 1) {
+                    continue;
+                }
+
+                if (ladder[nextRow][col + 1] == 1) {
+                    continue;
+                }
+
+                // 사다리 연결 후 높이 내려가도록 설정
+                ladder[nextRow][col] = 1;
+                dfs(ladder, nextRow, count + 1, maxLine);
+                ladder[nextRow][col] = 0;
             }
         }
     }
 
+    private static boolean checkLadder(int[][] ladder) {
+        // 첫 번째 세로선부터 출발
+        for (int i = 1; i <= n; i++) {
 
-    private static boolean isCorrectPath(int[][] connect) {
+            int cLine = i; // 사다리를 움직일때 위치한 세로선의 번호
 
-        int lines = connect.length;
-        int height = connect[0].length;
-
-        boolean isCorrect = true;
-        for(int line = 1; line < lines; line++) {
-            int start = line;
-            for(int h = 1; h < height; h++) {
-                if (connect[start][h] == CONNECT) {
-                    start = start + 1;
-                    continue;
+            for (int height = 1; height <= h; height++) {
+                // 현재 위치가 사다리로 연결되어 있는 경우 -> 로 이동
+                if (ladder[height][cLine] == 1) {
+                    cLine += 1;
                 }
-                if (connect[start - 1][h] == CONNECT) {
-                    start = start - 1;
+                // 현재 위치의 왼쪽에 사다리가 연결되어 있는 경우 <- 로 이동
+                else if (ladder[height][cLine - 1] == 1) {
+                    cLine -= 1;
                 }
+                // 사다리로 연결이 되어 있지 않은 경우 그냥 아래로 이동
             }
-            if(start != line) {
-                isCorrect = false;
-                break;
-            }
+            if (cLine != i) return false;
         }
-        return isCorrect;
+        return true;
     }
-
 }
