@@ -1,134 +1,121 @@
 package baekJoon.dijkstra;
 
-import static java.lang.Math.min;
-import static java.util.Collections.sort;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.PriorityQueue;
-import java.util.StringTokenizer;
+import java.io.*;
+import java.util.*;
 
 public class 미확인도착지 {
 
-  private static int n, m , t;
-  private static int s, g, h;
-  private static List<Edge>[] adj;
-  private static int[] dp;
-  private static boolean[] visited;
+    private static int[] distance;
 
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer input = new StringTokenizer(br.readLine());
 
-  public static void main(String[] args) throws IOException {
-    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-    BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-    StringTokenizer st = new StringTokenizer(br.readLine());
+        int T = Integer.parseInt(input.nextToken());
 
-    int caseSize = Integer.parseInt(st.nextToken());
+        for (int testcase = 0; testcase < T; testcase++) {
 
-    for(int testcase = 0; testcase < caseSize; testcase++) {
+            // 출발지점에서 목적지까지는 무조건 최소거리임.
 
-      st = new StringTokenizer(br.readLine());
+            input = new StringTokenizer(br.readLine());
+            int n = Integer.parseInt(input.nextToken());
+            int m = Integer.parseInt(input.nextToken());
+            int t = Integer.parseInt(input.nextToken());
 
-      n = Integer.parseInt(st.nextToken());
-      m = Integer.parseInt(st.nextToken());
-      t = Integer.parseInt(st.nextToken());
+            input = new StringTokenizer(br.readLine());
+            int s = Integer.parseInt(input.nextToken()); // 예술가 시작 위치
 
-      st = new StringTokenizer(br.readLine());
+            // g와 h의 도로를 지나감.
+            int g = Integer.parseInt(input.nextToken());
+            int h = Integer.parseInt(input.nextToken());
 
-      s = Integer.parseInt(st.nextToken());
-      g = Integer.parseInt(st.nextToken());
-      h = Integer.parseInt(st.nextToken());
+            List<int[]>[] roads = new List[n + 1];
+            distance = new int[n + 1];
+            Arrays.fill(distance, Integer.MAX_VALUE);
 
-      adj = new List[n + 1];
-      List<Integer> answer = new ArrayList<>();
-      dp = new int[n + 1];
+            for (int i = 1; i <= n; i++) {
+                roads[i] = new ArrayList<>();
+            }
 
-      for(int i = 0 ; i <= n; i++) {
-        adj[i] = new ArrayList<>();
-        dp[i] = Integer.MAX_VALUE;
-      }
+            for (int i = 0; i < m; i++) {
+                input = new StringTokenizer(br.readLine());
+                int p1 = Integer.parseInt(input.nextToken());
+                int p2 = Integer.parseInt(input.nextToken());
+                int length = Integer.parseInt(input.nextToken());
+                if ((p1 == g && p2 == h) || (p1 == h && p2 == g)) {
+                    // g-h 도로의 거리를 홀수로 만듬.
+                    roads[p1].add(new int[] {p2, length * 2 - 1});
+                    roads[p2].add(new int[] {p1, length * 2 - 1});
+                }
+                else {
+                    // 나머지 도로들은 모두 짝수
+                    roads[p1].add(new int[] {p2, length * 2});
+                    roads[p2].add(new int[] {p1, length * 2});
+                }
+            }
 
-      for(int i = 0; i < m; i++) {
-        st = new StringTokenizer(br.readLine());
-        int a = Integer.parseInt(st.nextToken());
-        int b = Integer.parseInt(st.nextToken());
-        int d = Integer.parseInt(st.nextToken());
-        if((a == g && b == h) || (a == h && b == g)) {
-          adj[a].add(new Edge(b, d * 2 - 1));
-          adj[b].add(new Edge(a, d * 2 - 1));
+            int[] endpoints = new int[t];
+            for (int i = 0; i < t; i++) {
+                input = new StringTokenizer(br.readLine());
+                endpoints[i] = Integer.parseInt(input.nextToken());
+            }
+
+            // 시작 지점에서 모든 지점까지의 최소 거리 구하기
+            bfs(s, roads);
+
+            List<Integer> answer = new ArrayList<>();
+            // 각 목적지들이 g-h 도로를 지나서 갔다면 반환 리스트에 추가
+            // 목적지까지의 최소거리가 홀수라면 도로를 지나간 것임.
+            for (int endpoint : endpoints) {
+                if (distance[endpoint] != Integer.MAX_VALUE && distance[endpoint] % 2 == 1) {
+                    answer.add(endpoint);
+                }
+            }
+            Collections.sort(answer);
+
+            for (int ans : answer) {
+                bw.write(String.valueOf(ans) + " ");
+            }
+            bw.newLine();
         }
-        else {
-          adj[a].add(new Edge(b, d * 2));
-          adj[b].add(new Edge(a, d * 2));
-        }
-      }
-
-      dijkstra();
-      for(int i = 0; i < t; i++) {
-        st = new StringTokenizer(br.readLine());
-
-        int dest = Integer.parseInt(st.nextToken());
-        if(dp[dest] % 2 == 1 && dp[dest] != Integer.MAX_VALUE) {
-          answer.add(dest);
-        }
-      }
-
-      sort(answer);
-
-      for(int i = 0; i < answer.size(); i++) {
-        bw.write(String.valueOf(answer.get(i)));
-        bw.write(" ");
-      }
-      bw.newLine();
-    }
-    br.close();
-    bw.flush();
-    bw.close();
-  }
-
-  private static class Edge implements Comparable<Edge> {
-    int node, dist;
-
-    public Edge(int node, int dist) {
-      this.node = node;
-      this.dist = dist;
+        bw.flush();
+        bw.close();
+        br.close();
     }
 
-    @Override
-    public int compareTo(Edge o) {
-      return dist - o.dist;
-    }
-  }
+    // 시작지점에서 모든 지점까지의 최소거리를 구하기.
+    private static void bfs(int start, List<int[]>[] roads) {
 
-  private static void dijkstra() {
-    visited = new boolean[n + 1];
-    PriorityQueue<Edge> pq = new PriorityQueue<>();
-    pq.add(new Edge(s, 0));
-    dp[s] = 0;
+        boolean[] visited = new boolean[roads.length];
+        PriorityQueue<int[]> pq = new PriorityQueue<>((a, b) -> a[0] - b[0]);
+        pq.add(new int[] {0, start});
+        distance[start] = 0;
 
-    while(true) {
-      if(pq.isEmpty()) break;
-      Edge here = pq.poll();
-      int current = here.node;
+        while (!pq.isEmpty()) {
 
-      if(visited[current]) continue;
-      visited[current] = true;
+            int[] node = pq.poll();
+            int number = node[1];
 
-      for(int i = 0; i < adj[current].size(); i++) {
-        int next = adj[current].get(i).node;
-        int cost = adj[current].get(i).dist;
-        if(visited[next]) continue;
-        if(dp[next] > dp[current] + cost) {
-          dp[next] = dp[current] + cost;
-          pq.add(new Edge(next, dp[next]));
+            if (visited[number]) {
+                continue;
+            }
+
+            distance[number] = Math.min(distance[number], node[0]);
+            visited[number] = true;
+
+            for (int i = 0; i < roads[number].size(); i++) {
+                int[] next = roads[number].get(i);
+                int nextNum = next[0];
+                int nextDistance = next[1];
+
+                if (visited[nextNum]) {
+                    continue;
+                }
+
+                pq.add(new int[] {node[0] + nextDistance, nextNum});
+
+            }
         }
-      }
-
     }
-  }
-
 }
