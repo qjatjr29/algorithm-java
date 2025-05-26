@@ -1,75 +1,73 @@
 package baekJoon.dp;
 
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.StringTokenizer;
-
-import static java.lang.Math.*;
-import static java.util.Arrays.sort;
-
 
 public class 앱 {
 
-    static int[] dp;
-    static int N, M;
-    static app[] apps;
-    private static final int MAX = 10001;
-
-    public static class app {
-        int memory, cost;
-        app(int memory, int cost) {
-            this.memory = memory;
-            this.cost = cost;
-        }
-    }
-
     public static void main(String[] args) throws IOException {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        StringTokenizer input = new StringTokenizer(br.readLine());
 
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
+        int n = Integer.parseInt(input.nextToken());
+        int m = Integer.parseInt(input.nextToken());
 
-        int answer = 0;
-        int maxCost = 0;
-       dp = new int[MAX];
-       apps = new app[N];
+        int[] memories = new int[n];
+        int[] costs = new int[n];
+        App[] apps = new App[n];
+        int[] dp = new int[10001]; // 가격별 확보할 수 있는 최대 메모리 바이트
+        int answer = Integer.MAX_VALUE;
 
-       for(int i = 0 ; i < N; i++) {
-           apps[i] = new app(0, 0);
-       }
+        input = new StringTokenizer(br.readLine());
+        for (int i = 0; i < n; i++) {
+            memories[i] = Integer.parseInt(input.nextToken());
+        }
 
-       st = new StringTokenizer(br.readLine());
-       for(int i = 0; i < N; i++) {
-           apps[i].memory = Integer.parseInt(st.nextToken());
-       }
-       st = new StringTokenizer(br.readLine());
-       for(int i = 0; i < N; i++) {
-           apps[i].cost = Integer.parseInt(st.nextToken());
-           maxCost += apps[i].cost;
-       }
+        input = new StringTokenizer(br.readLine());
+        for (int i = 0; i < n; i++) {
+            costs[i] = Integer.parseInt(input.nextToken());
+        }
 
-       for(int i = 0; i < N; i++) {
-           int appMemory = apps[i].memory;
-           int appCost = apps[i].cost;
+        for (int i = 0; i < n; i++) {
+            apps[i] = new App(memories[i], costs[i]);
+        }
 
-           for(int j = maxCost; j >= 0; j--) {
-               if(j < appCost ) break;
-               dp[j] = max(dp[j], dp[j - appCost] + appMemory);
-           }
-       }
+        for (int i = 0; i < n; i++) {
+            App app = apps[i];
+            int cost = app.cost;
+            int memory = app.memory;
 
-       for(int i = 1; i < MAX; i++) {
-           if(dp[i] >= M) {
-               answer = i;
-               break;
-           }
-       }
+            for (int j = 10000; j >= cost; j--) {
+                dp[j] = Math.max(dp[j], dp[j - cost] + memory);
+            }
+        }
+
+        for (int i = 0; i < 10001; i++) {
+            if (dp[i] >= m) {
+                answer = i;
+                break;
+            }
+        }
 
         bw.write(String.valueOf(answer));
         bw.newLine();
         bw.flush();
         bw.close();
+        br.close();
 
+    }
+
+    private static class App {
+        int memory;
+        int cost;
+
+        public App(int memory, int cost) {
+            this.memory = memory;
+            this.cost = cost;
+        }
     }
 }
